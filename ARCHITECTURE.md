@@ -4,7 +4,7 @@ The **TIC-Trading-Pod** is a modular, stateless trading engine designed to repla
 
 The architecture is built on three core pillars:
 1. **DB-Less State Management:** The engine maintains no local persistence. The broker is the absolute source of truth for portfolio balances and open positions, what is totally fine for low frequency trading.
-2. **Containerized Isolation:** A single Docker container runs exactly one strategy so scaling is exclusively achieved in a horizontal fashion by deploying more containers, not by adding internal complexity. THis ensures that if one strategy encounters an error or crash, it doesn't affect the others.
+2. **Containerized Isolation:** A single Docker container runs exactly one strategy so scaling is exclusively achieved in a horizontal fashion by deploying more containers, not by adding internal complexity. This ensures that if one strategy encounters an error or crash, it doesn't affect the others.
 3. **Stateless Async Loop:** The pod wakes up at a set interval (e.g., 1 hour), executes a deterministic pipeline, and goes back to sleep. If the pod crashes, it can restart safely without data corruption.
 
 ---
@@ -69,7 +69,7 @@ Handles all external network I/O.
 
 ### B. The Strategy Layer (`src/strategy/`)
 
-* **`base.py`**: The abstract interface. Strategies are decoupled from execution logic. They ingest unified candle data and strictly return an array of JSON objects that has the following format: 
+* **`IStrategy (Interface)`**: The abstract interface. Strategies are decoupled from execution logic. They ingest unified candle data and strictly return an array of JSON objects that has the following format: 
 `{"symbol": "...", "weight": 0.XX}`.
 
 ### C. The Engine Layer (`src/engine/`)

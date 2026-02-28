@@ -1,0 +1,19 @@
+# requirements.txt
+
+# Async HTTP client for hitting the broker REST API
+httpx==0.27.*
+
+# Official Alpaca Python SDK
+alpaca-py==0.43.*
+
+# For parsing your config.yaml file
+PyYAML==6.0.*
+
+# For strict data validation and config parsing
+pydantic==2.6.*
+
+# For network retries and exponential backoff
+tenacity==8.2.*
+
+# Pandas for internal candle/data handling
+pandas==2.1.*
