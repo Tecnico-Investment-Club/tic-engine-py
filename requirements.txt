@@ -17,3 +17,14 @@ tenacity==8.2.*
 
 # Pandas for internal candle/data handling
 pandas==2.1.*
+
+# --- Database & Storage ---
+psycopg[binary]==3.1.*
+sqlalchemy==2.0.*
+
+# --- Time & Scheduling ---
+pytz==2024.1
+croniter==2.0.*
+
+# --- Strategy Helpers ---
+numpy==1.26.*

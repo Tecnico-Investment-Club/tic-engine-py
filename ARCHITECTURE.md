@@ -1,95 +1,92 @@
-# Architecture: TIC-Trading-Pod
+Architecture: TIC-Trading-Pod
 
-The **TIC-Trading-Pod** is a modular, stateless trading engine designed to replace the previous engine, with a clear focus on modularity and ease of strategy implementation. 
+The TIC-Trading-Pod is a modular trading engine designed to replace the previous engine, with a clear focus on modularity, horizontal scalability, and ease of strategy implementation.
 
 The architecture is built on three core pillars:
-1. **DB-Less State Management:** The engine maintains no local persistence. The broker is the absolute source of truth for portfolio balances and open positions, what is totally fine for low frequency trading.
-2. **Containerized Isolation:** A single Docker container runs exactly one strategy so scaling is exclusively achieved in a horizontal fashion by deploying more containers, not by adding internal complexity. This ensures that if one strategy encounters an error or crash, it doesn't affect the others.
-3. **Stateless Async Loop:** The pod wakes up at a set interval (e.g., 1 hour), executes a deterministic pipeline, and goes back to sleep. If the pod crashes, it can restart safely without data corruption.
 
----
+Hub-and-Spoke Data Model: To avoid API rate limits when scaling horizontally, a centralized ETL "Hub" fetches market data from the broker once and stores it in an internal database. The trading "Spokes" (pods) query this internal DB.
 
-## 1. System Pipeline Diagram
+Containerized Isolation: A single Docker container runs exactly one strategy. Scaling is exclusively achieved horizontally by deploying more containers. This ensures that if one strategy encounters an error or crash, it doesn't affect the others.
 
-The engine follows a strict, unidirectional data flow every execution cycle:
+Stateless Async Loop: The trading pod maintains no local state. It wakes up, executes a deterministic pipeline by reading the freshest data, and goes back to sleep. If the pod crashes, it can restart safely without data corruption.
 
-```
+1. System Pipeline Diagram (Hub and Spoke)
+
+The system operates in a Monorepo containing two independent services that communicate via an internal database.
+
+=================== THE HUB (ETL) ===================
+[Alpaca API] ---> src/etl_db/ingestor.py ---> [Internal Postgres DB]
+(Fetches data hourly for all tracked assets)
+
+=================== THE SPOKE (POD) =================
 ┌─────────────────────────────────────────┐
-│              main.py (Loop)             │
+│         src/engine_py/main.py           │
 │    [Sleep 1h] ──--> [Awake & Execute]   │
 └────────────────────┬────────────────────┘
                      │
  1. Fetch State      ▼     2. Fetch Data
 ┌─────────────────────────────────────────┐
-│        src/broker/ (External I/O)       │
-│  Queries Broker for Cash Balance &      │
-│  Last Y OHLCV Candles                   │
+│      src/engine_py/pipeline/ingestion.py│
+│  Queries Alpaca for Live Cash Balance   │
+│  Queries Internal DB for OHLCV Candles  │
 └────────────────────┬────────────────────┘
                      │
  3. OHLCV Data       ▼     4. Weights (%)
 ┌─────────────────────────────────────────┐
-│       src/strategy/ (Trading Logic)     │
+│     src/engine_py/pipeline/strategy/    │
 │  Blackbox calculation outputting target │
 │  allocation weights per asset           │
 └────────────────────┬────────────────────┘
                      │
  5. Weights + Cash   ▼     6. Allocations
 ┌─────────────────────────────────────────┐
-│       src/engine/transformer.py         │
+│      src/engine_py/pipeline/transformer │
 │  Converts percentage weights into       │
 │  absolute cash/broker units             │
 └────────────────────┬────────────────────┘
                      │
  7. Allocations      ▼     8. Valid Orders
 ┌─────────────────────────────────────────┐
-│          src/engine/risk.py             │
+│          src/engine_py/pipeline/risk.py │
 │  Validates allocations against max      │
 │  exposure and hard caps                 │
 └────────────────────┬────────────────────┘
                      │
  9. Valid Orders     ▼     10. API Request
 ┌─────────────────────────────────────────┐
-│         src/broker/execution.py         │
-│  Simulates execution via Broker Testnet │
+│      src/engine_py/pipeline/execution.py│
+│  Submits live orders to Alpaca Testnet  │
 └─────────────────────────────────────────┘
 
-```
 
----
+2. Core Modules
 
-## 2. Core Modules
+A. The Core Layer (src/core/)
 
-### A. **The Broker Layer:** (`src/broker/`)
+The shared DNA. Contains strictly typed Pydantic models (datatypes.py) and abstract base classes (contracts.py) used by both the Hub and the Spokes to ensure data consistency.
 
-Handles all external network I/O.
+B. The Hub Layer (src/etl_db/)
 
-* **`market_data.py`**: Queries the broker REST API and standardizes raw data into a unified OHLCV internal format.
-* **`portfolio.py`**: Queries the broker for live cash availability. This fully replaces a local database.
-* **`execution.py`**: The order gateway. Submits orders to the broker's paper trading environment.
+ingestor.py: A centralized worker that queries the broker REST API for a master list of assets and saves them to the internal database, preventing API rate limits.
 
-### B. The Strategy Layer (`src/strategy/`)
+janitor.py: A cleanup utility that prunes database records older than X days to keep the system footprint extremely lean.
 
-* **`IStrategy (Interface)`**: The abstract interface. Strategies are decoupled from execution logic. They ingest unified candle data and strictly return an array of JSON objects that has the following format: 
-`{"symbol": "...", "weight": 0.XX}`.
+C. The Spoke Layer (src/engine_py/)
 
-### C. The Engine Layer (`src/engine/`)
+The trading pod. It remains completely stateless internally.
 
-The middleman between abstract strategy and the broker.
+ingestion.py: Queries the internal Postgres DB for historical candles and the broker for live cash balances.
 
-* **`transformer.py`**: Calculates absolute cash allocations based on the strategy's target weights and the exact portfolio balance fetched from the broker. It handles rounding and broker precision rules.
-* **`risk.py`**: The final safety net. Validates proposed orders against maximum exposure limits, daily hard caps and basic sanity checks before they reach the execution gateway.
+strategy/: The IStrategy blackbox that outputs target weights.
 
-So the data flow is:
+transformer.py & risk.py: Converts weights to safe, lot-sized broker orders.
 
-```
-Sleeping --> Broker Ingestion --> Strategy Logic --> Transformer --> Risk Validation --> Execution
-```
+execution.py: Submits the final orders to the broker.
 
----
+3. Design Decisions & Trade-offs
 
-## 3. Design Decisions & Trade-offs
+Internal DB vs Direct Broker Queries: While checking portfolio state directly from the broker is necessary, querying historical candles directly from the broker per-pod leads to immediate API rate limiting when running multiple strategies. The internal Postgres DB acts as a shared cache, solving this bottleneck.
 
-* **REST API over WebSockets:** To keep the MVP simple and reliable, we use REST APIs. Since the execution frequency is low (e.g., hourly), maintaining long-lived WebSocket connections introduces unnecessary complexity and failure points.
-* **No Database:** By relying on the broker's Testnet for state, we completely eliminate local state drift. If a network call fails, the pod simply skips the hour and tries again later, fetching the freshest, most accurate portfolio balance.
-* **Single Strategy per Container:** This design enforces strict isolation. If one strategy crashes, it doesn't affect others. Scaling is achieved by deploying more containers, not by adding internal complexity.
-* **Synchronous Execution Flow:** The entire pipeline runs synchronously within the awake cycle. This ensures deterministic behavior and simplifies error handling. If any step fails, the pod can log the error and safely return to sleep without risking inconsistent state.
+REST API over WebSockets: To keep the MVP simple and reliable, we use REST APIs. Since the execution frequency is low (e.g., hourly), maintaining long-lived WebSocket connections introduces unnecessary complexity and failure points.
+
+Single Strategy per Container: This design enforces strict isolation. If one strategy crashes, it doesn't affect others. Scaling is achieved by deploying more containers, not by adding internal complexity.
