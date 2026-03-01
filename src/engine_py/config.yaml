@@ -1,17 +1,18 @@
-# src/engine_py/config.yaml
-# Configuration for THIS specific trading pod
+schedule_minutes: 60
 
-engine:
-  sleep_interval_seconds: 3600
-  timeframe: "1h"
-  fetch_candles_limit: 180
+assets:
+  - AAPL
+  - TSLA
+  - SPY
+  - BTCUSDT
+  - ETHUSDT
+
+lookback: 100
+
+strategy_name: "MovingAverageCrossStrategy"
+strategy:
+  short_window: 9
+  long_window: 21
 
 risk:
-  max_exposure_per_asset_pct: 0.50
-  max_daily_turnover_pct: 2.00
-
-strategy:
-  name: "DummyStrategy"
-  params:
-    buy_threshold: 60000.0
-    sell_threshold: 65000.0
+  max_order_qty: 1000.0
