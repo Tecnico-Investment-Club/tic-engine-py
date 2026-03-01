@@ -1,36 +1,25 @@
-# Dockerfile for ETL+DB container
-# Combines Postgres database and ETL ingestion service in a single container
-
+# Use a lightweight Python image
 FROM python:3.10-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    postgresql \
-    postgresql-contrib \
-    && rm -rf /var/lib/apt/lists/*
+# Prevent Python from buffering stdout/stderr
+ENV PYTHONUNBUFFERED=1
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir \
+    psycopg2-binary \
+    pydantic \
+    pyyaml \
+    requests \
+    alpaca-py \
+    python-dotenv
 
-# Copy application code
-COPY src/ ./src/
-COPY .env* ./
+# Copy the entire source tree (Core + ETL)
+COPY src/ /app/src/
 
-# Create directory for Postgres data
-RUN mkdir -p /var/lib/postgresql/data && \
-    chown -R postgres:postgres /var/lib/postgresql/data
+# Add /app to PYTHONPATH so "from src.core..." works
+ENV PYTHONPATH=/app
 
-# Copy entrypoint script
-COPY src/etl_db/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Expose Postgres port (optional, for debugging)
-EXPOSE 5432
-
-# Run entrypoint
-CMD ["/app/entrypoint.sh"]
-
+# Run the ETL Entrypoint
+CMD ["python", "src/etl_db/main.py"]
