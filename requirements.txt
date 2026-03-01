@@ -1,38 +1,20 @@
 # requirements.txt
 
-# Async HTTP client for hitting the broker REST API
-httpx==0.27.*
+# Core & Utilities
+pydantic==2.6.*         # Strict data validation and models
+python-dotenv==1.0.*    # Manages .env files for local development
+PyYAML==6.0.*           # For parsing config.yaml files
 
-# Official Alpaca Python SDK
-alpaca-py==0.43.*
+# Broker & Data Source SDKs
+alpaca-py==0.43.*       # Official Alpaca Trading & Market Data SDK
+requests==2.31.*        # For hitting Binance public API and Discord webhooks
 
-# For parsing your config.yaml file
-PyYAML==6.0.*
+# Database & Persistence
+psycopg2-binary==2.9.*  # Postgres database driver
 
-# For strict data validation and config parsing
-pydantic==2.6.*
+# Strategy & Data Science
+pandas==2.1.*           # Core data manipulation for strategies
+numpy==1.26.*           # Numerical processing, required by pandas
 
-# For network retries and exponential backoff
-tenacity==8.2.*
-
-# Pandas for internal candle/data handling
-pandas==2.1.*
-
-# Database & Storage
-psycopg2-binary==2.9.*
-sqlalchemy==2.0.*
-
-# Time & Scheduling
-pytz==2024.1
-croniter==2.0.*
-
-# Strategy Helpers
-numpy==1.26.*
-
-# Environment variable management
-python-dotenv==1.0.*
-
-
-
-
-requests==2.31.*
+# Scheduling
+schedule==1.2.*         # In-process job scheduling for the engine's heartbeat

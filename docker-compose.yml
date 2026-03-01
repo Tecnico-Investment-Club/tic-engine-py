@@ -1,5 +1,5 @@
 services:
-  # The Internal Database
+  # Service 1: The Database (State)
   db:
     image: postgres:15-alpine
     container_name: tic-db
@@ -8,13 +8,13 @@ services:
       POSTGRES_PASSWORD: tic_password
       POSTGRES_DB: tic_data
     ports:
-      - "5432:5432"  # Exposed so you can check it from your PC
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Automatically runs your schema.sql on first startup
       - ./src/etl_db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
 
-  # The ETL Service
+  # Service 2: The Data Hub (ETL)
   etl:
     build:
       context: .
@@ -23,10 +23,27 @@ services:
     depends_on:
       - db
     environment:
+      # Internal Docker DNS (db:5432)
       DATABASE_URL: postgresql://tic_user:tic_password@db:5432/tic_data
       ALPACA_KEY: ${ALPACA_KEY}
       ALPACA_SECRET: ${ALPACA_SECRET}
-    command: ["python", "src/etl_db/main.py", "ingest"]
+    restart: unless-stopped
+
+  # Service 3: The Trading Pod (Strategy)
+  engine:
+    build:
+      context: .
+      dockerfile: src/engine_py/Dockerfile
+    container_name: tic-engine
+    depends_on:
+      - db
+    # We want the engine to crash/restart if the DB isn't ready, 
+    # but 'depends_on' ensures startup order.
+    environment:
+      DATABASE_URL: postgresql://tic_user:tic_password@db:5432/tic_data
+      ALPACA_KEY: ${ALPACA_KEY}
+      ALPACA_SECRET: ${ALPACA_SECRET}
+    restart: unless-stopped
 
 volumes:
   postgres_data:
