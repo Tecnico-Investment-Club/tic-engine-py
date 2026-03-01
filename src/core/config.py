@@ -16,7 +16,6 @@ class GlobalSettings(BaseSettings):
     # Tells pydantic to look for a file named .env in the root folder
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-# Instantiate it immediately so other modules can just import it and access settings as needed.
 settings = GlobalSettings()
 
 def load_yaml_config(filepath: str) -> Dict[str, Any]:
