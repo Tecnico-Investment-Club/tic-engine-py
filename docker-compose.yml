@@ -1,0 +1,32 @@
+services:
+  # The Internal Database
+  db:
+    image: postgres:15-alpine
+    container_name: tic-db
+    environment:
+      POSTGRES_USER: tic_user
+      POSTGRES_PASSWORD: tic_password
+      POSTGRES_DB: tic_data
+    ports:
+      - "5432:5432"  # Exposed so you can check it from your PC
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Automatically runs your schema.sql on first startup
+      - ./src/etl_db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # The ETL Service
+  etl:
+    build:
+      context: .
+      dockerfile: src/etl_db/Dockerfile
+    container_name: tic-etl
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://tic_user:tic_password@db:5432/tic_data
+      ALPACA_KEY: ${ALPACA_KEY}
+      ALPACA_SECRET: ${ALPACA_SECRET}
+    command: ["python", "src/etl_db/main.py", "ingest"]
+
+volumes:
+  postgres_data:

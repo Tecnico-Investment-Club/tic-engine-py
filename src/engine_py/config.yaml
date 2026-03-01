@@ -1,0 +1,17 @@
+# src/engine_py/config.yaml
+# Configuration for THIS specific trading pod
+
+engine:
+  sleep_interval_seconds: 3600
+  timeframe: "1h"
+  fetch_candles_limit: 180
+
+risk:
+  max_exposure_per_asset_pct: 0.50
+  max_daily_turnover_pct: 2.00
+
+strategy:
+  name: "DummyStrategy"
+  params:
+    buy_threshold: 60000.0
+    sell_threshold: 65000.0
