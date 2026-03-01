@@ -1,10 +1,13 @@
 job_settings:
-  sleep_seconds: 3600  # Run every hour
-  lookback_limit: 100  # Fetch last 100 hours/days on every run
+  sleep_seconds: 3600
+  lookback_limit: 100
 
 assets:
-  - AAPL
-  - TSLA
-  - MSFT
-  - SPY
-  - QQQ
+  alpaca:
+    - AAPL
+    - TSLA
+    - SPY
+  binance:
+    - BTCUSDT
+    - ETHUSDT
+    - SOLUSDT

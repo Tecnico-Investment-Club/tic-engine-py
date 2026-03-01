@@ -13,6 +13,7 @@ sys.path.append(os.getcwd())
 from src.etl_db.persistence.connection import get_db_connection
 from src.etl_db.persistence.repository import MarketDataRepository
 from src.etl_db.data_source.alpaca import AlpacaSource
+from src.etl_db.data_source.binance import BinanceSource
 from src.etl_db.jobs.ingestor import IngestionJob
 
 # Configure Logging
@@ -27,6 +28,8 @@ def main():
     # Load Secrets
     api_key = os.getenv("ALPACA_KEY")
     api_secret = os.getenv("ALPACA_SECRET")
+
+    # BINANCE DOES NOT REQUIRE API KEYS FOR PUBLIC DATA
     
     if not api_key or not api_secret:
         logger.fatal("Missing ALPACA_KEY or ALPACA_SECRET env vars.")
@@ -36,15 +39,25 @@ def main():
     try:
         db_conn = get_db_connection()
         repo = MarketDataRepository(db_conn)
-        source = AlpacaSource(api_key, api_secret)
         
-        logger.info("Connected to DB and Alpaca successfully.")
+        # Initialize Sources
+        alpaca_source = AlpacaSource(api_key, api_secret)
+        binance_source = BinanceSource()
+        
+        # Package the sources into a dictionary
+        sources = {
+            "alpaca": alpaca_source,
+            "binance": binance_source
+        }
+        
+        # Log the successful initialization of all components
+        logger.info("Connected to DB, Alpaca, and Binance successfully.")
     except Exception as e:
         logger.fatal(f"Initialization failed: {e}")
         sys.exit(1)
 
     # Start the Job
-    job = IngestionJob(source, repo)
+    job = IngestionJob(sources, repo)
     job.run_loop()
 
 if __name__ == "__main__":
