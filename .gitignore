@@ -210,3 +210,4 @@ __pycache__/
 old/
 .venv/
 *.pyc
+secrets/
