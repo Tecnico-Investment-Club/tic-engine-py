@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
@@ -13,8 +13,6 @@ class OrderType(str, Enum):
     LIMIT = "limit"
 
 # MARKET DATA
-# Standardized data structured for market data
-# Stored in the internal Postgres DB
 class Candle(BaseModel):
     """
     Standardized OHLCV market tick.
@@ -27,6 +25,15 @@ class Candle(BaseModel):
     close: float
     volume: float
 
+class MarketData(BaseModel):
+    """
+    A collection of historical data organized by ticker.
+    """
+    data: Dict[str, List[Candle]] = {}
+
+    def symbols(self) -> List[str]:
+        """Returns a list of all symbols in the market data."""
+        return list(self.data.keys())
 
 # SYSTEM STATE
 class PortfolioState(BaseModel):

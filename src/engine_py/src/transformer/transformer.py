@@ -1,68 +1,66 @@
 import logging
-from typing import List, Dict
+from typing import List
+from src.core.types import TargetAllocation, PortfolioState, OrderRequest, OrderSide
 
-from src.core.datatypes import TargetAllocation, OrderRequest
-from src.engine_py.src.transformer.base import ITransformer
+from .base import ITransformer
 
 logger = logging.getLogger(__name__)
 
-class Transformer(ITransformer):
-    """
-    Transformer.
-    Converts percentage weights into absolute share quantities, diffs them
-    against current holdings, and outputs exact Order Requests.
-    """
-    def translate_to_orders(self, allocations: List[TargetAllocation], total_equity: float, current_prices: Dict[str, float], current_positions: Dict[str, float]) -> List[OrderRequest]:
-        
+class StandardTransformer(ITransformer):
+    def __init__(self, min_order_value: float = 10.0):
+        # Prevent micro-transactions
+        self.min_order_value = min_order_value
+
+    def transform(self, allocations: List[TargetAllocation], state: PortfolioState) -> List[OrderRequest]:
         orders = []
-        target_shares = {}
+        total_equity = state.total_equity
+        
+        logger.info(f"[DEBUG TRANSFORMER] Total Equity: {total_equity}")
+        logger.info(f"[DEBUG TRANSFORMER] State Prices received: {state.prices}")
 
-        # Calculate how many shares we SHOULD have
+        # Loop through each target allocation
         for alloc in allocations:
-            if alloc.symbol not in current_prices:
-                logger.warning(f"No current price for {alloc.symbol}. Cannot calculate shares.")
-                continue
+            symbol = alloc.symbol
+            target_weight = alloc.weight
             
-            # Get the dollar amount we want to allocate to this asset
-            target_dollar_amount = total_equity * alloc.weight
+            logger.info(f"[DEBUG TRANSFORMER] Evaluating {symbol} (Target Weight: {target_weight})")
 
-            # Convert dollar amount to shares
-            shares = target_dollar_amount / current_prices[alloc.symbol]
+            # Get the latest price
+            price = state.prices.get(symbol)
 
-            # Store the target shares for this symbol
-            target_shares[alloc.symbol] = shares
-
-        # Diff against what we CURRENTLY have
-        # We check both targets AND existing positions
-        # Ensuring we consider all symbols that are either in the target or currently held
-        all_symbols = set(target_shares.keys()).union(set(current_positions.keys()))
-
-        # For loop through all symbols to determine if we need to buy/sell/hold
-        for symbol in all_symbols:
-            target_qty = target_shares.get(symbol, 0.0)
-            current_qty = current_positions.get(symbol, 0.0)
-            
-            # The delta is how many shares we need to buy (+) or sell (-)
-            delta = target_qty - current_qty
-            
-            # If the difference is worth less than $1.00, ignore it.
-            # This prevents from making irrelevant micro-trades
-            dollar_diff = abs(delta * current_prices.get(symbol, 0))
-            if dollar_diff < 1.0:
+            # If there is no price data for this symbol, skip it
+            if not price or price <= 0:
+                logger.warning(f"Transformer: No valid price for {symbol}. Price value seen: {price}. Skipping.")
                 continue
 
-            side = "buy" if delta > 0 else "sell"
-            
+            # Calculate the Delta: target value - current value
+            target_value = total_equity * target_weight
+            current_qty = state.positions.get(symbol, 0.0)
+            current_value = current_qty * price
+
+            delta_value = target_value - current_value
+            delta_qty = delta_value / price
+
+            logger.info(f"[DEBUG TRANSFORMER] {symbol} | Target Val: {target_value:.2f} | Current Val: {current_value:.2f} | Delta Val: {delta_value:.2f}")
+
+            # Filter out small orders below the minimum order value threshold
+            if abs(delta_value) < self.min_order_value:
+                logger.info(f"[DEBUG TRANSFORMER] {symbol} delta ({delta_value:.2f}) < min_order_value ({self.min_order_value}). Skipping.")
+                continue
+
+            # Define the order side based on whether we need to buy or sell
+            side = OrderSide.BUY if delta_qty > 0 else OrderSide.SELL
+            order_qty = abs(delta_qty)
+
+            if side == OrderSide.SELL:
+                # Ensure we don't try to sell more than we have
+                order_qty = min(order_qty, abs(current_qty))
+
             orders.append(OrderRequest(
-                symbol=symbol,
-                qty=abs(delta),
-                side=side,
-                type="market"
-            ))
-            
-            logger.info(
-                f"Transformer: {symbol} | Target: {target_qty:.4f} shares | "
-                f"Current: {current_qty:.4f} shares -> ORDER: {side.upper()} {abs(delta):.4f}"
-            )
+                    symbol=symbol,
+                    qty=order_qty,
+                    side=side
+                    ))
 
+        logger.info(f"Transformer: Converted {len(allocations)} weights into {len(orders)} order requests.")
         return orders
