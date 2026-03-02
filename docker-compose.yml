@@ -1,6 +1,5 @@
 services:
-  # Service 1: The Database (State)
-  db:
+  tic-db:
     image: postgres:15-alpine
     container_name: tic-db
     environment:
@@ -10,40 +9,58 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/etl_db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/etl_db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tic_user -d tic_data"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: always
 
-  # Service 2: The Data Hub (ETL)
-  etl:
+  tic-etl:
     build:
       context: .
       dockerfile: src/etl_db/Dockerfile
     container_name: tic-etl
+    restart: always
+    env_file:
+      - ./secrets/etl.env
     depends_on:
-      - db
+      tic-db:
+        condition: service_healthy
     environment:
-      # Internal Docker DNS (db:5432)
-      DATABASE_URL: postgresql://tic_user:tic_password@db:5432/tic_data
-      ALPACA_KEY: ${ALPACA_KEY}
-      ALPACA_SECRET: ${ALPACA_SECRET}
-    restart: unless-stopped
+      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
 
-  # Service 3: The Trading Pod (Strategy)
-  engine:
+  pod-one:
     build:
       context: .
       dockerfile: src/engine_py/Dockerfile
-    container_name: tic-engine
-    depends_on:
-      - db
-    # We want the engine to crash/restart if the DB isn't ready, 
-    # but 'depends_on' ensures startup order.
-    environment:
-      DATABASE_URL: postgresql://tic_user:tic_password@db:5432/tic_data
-      ALPACA_KEY: ${ALPACA_KEY}
-      ALPACA_SECRET: ${ALPACA_SECRET}
+    container_name: pod-one
     restart: unless-stopped
+    env_file:
+      - ./secrets/strat_one.env
+    depends_on:
+      tic-db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
+      - CONFIG_PATH=/app/config.yaml 
+    volumes:
+      - ./src/engine_py/src/strategy/example_strat/config.yaml:/app/config.yaml
 
-volumes:
-  postgres_data:
+  pod-two:
+    build:
+      context: .
+      dockerfile: src/engine_py/Dockerfile
+    container_name: pod-two
+    restart: unless-stopped
+    env_file:
+      - ./secrets/strat_two.env
+    depends_on:
+      tic-db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
+      - CONFIG_PATH=/app/config.yaml 
+    volumes:
+      - ./src/engine_py/src/strategy/example_strat_two/config.yaml:/app/config.yaml
