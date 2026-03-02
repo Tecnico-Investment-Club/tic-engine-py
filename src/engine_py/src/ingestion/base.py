@@ -1,19 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
-from src.core.datatypes import Candle
+from typing import List
+from src.core.types import MarketData, PortfolioState
 
 class IIngestion(ABC):
     @abstractmethod
-    def get_portfolio_cash(self) -> float:
-        """Returns the current available cash balance from the broker."""
+    def get_data(self, symbols: List[str], lookback_days: int) -> MarketData:
+        """
+        Query the internal DB for candles and return them 
+        grouped by symbol for O(1) strategy access.
+        """
         pass
 
     @abstractmethod
-    def get_current_positions(self) -> Dict[str, float]:
-        """Returns a dict of {'symbol': quantity} for all current holdings."""
-        pass
-
-    @abstractmethod
-    def get_historical_data(self, symbols: List[str], limit: int) -> Dict[str, List[Candle]]:
-        """Returns historical OHLCV data from the internal DB."""
+    def get_live_portfolio_state(self) -> PortfolioState:
+        """Query the Broker for current cash and open positions."""
         pass

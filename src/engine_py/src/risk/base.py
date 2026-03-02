@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import List
-from src.core.datatypes import OrderRequest
+from src.core.types import OrderRequest, PortfolioState
 
-class IRisk(ABC):
+class IRiskManager(ABC):
     @abstractmethod
-    def filter_orders(self, orders: List[OrderRequest]) -> List[OrderRequest]:
+    def validate_orders(self, orders: List[OrderRequest], state: PortfolioState) -> List[OrderRequest]:
         """
-        Takes a list of proposed orders and returns a list of orders that
-        have been approved by the risk management rules.
+        Takes raw orders from the Transformer and filters/modifies them 
+        to ensure they comply with hard risk limits.
         """
         pass

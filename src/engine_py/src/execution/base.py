@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List
-from src.core.datatypes import OrderRequest
+from src.core.types import OrderRequest, TradeReceipt
 
-class IExecution(ABC):
+class IExecutor(ABC):
     @abstractmethod
-    def execute_orders(self, orders: List[OrderRequest]):
-        """Takes a list of valid orders and submits them to the broker."""
+    def execute_orders(self, orders: List[OrderRequest]) -> List[TradeReceipt]:
+        """
+        Submits live orders to the broker and returns the execution receipts.
+        """
         pass

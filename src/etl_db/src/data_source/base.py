@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Literal
-from src.core.datatypes import Candle
+from src.core.types import Candle
 
 class DataSource(ABC):
     @abstractmethod
