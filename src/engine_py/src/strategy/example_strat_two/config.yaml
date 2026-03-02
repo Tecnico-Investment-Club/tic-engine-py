@@ -1,0 +1,16 @@
+# General Pod Settings
+schedule_minutes: 60
+lookback: 50
+assets:
+  - AAPL
+  - SPY
+  - BTCUSD
+  - ETHUSD
+
+# Strategy Configuration
+strategy:
+  name: "ExampleStrategyTwo"
+  params:
+    rsi_window: 14
+    oversold_threshold: 30.0
+    max_weight: 0.33

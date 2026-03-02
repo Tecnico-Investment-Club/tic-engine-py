@@ -1,15 +1,14 @@
+# Import from the new subfolders
+from .example_strat.example_strat import ExampleStrat
+from .example_strat_two.example_strat_two import ExampleStratTwo
 from .base import IStrategy
-from .example_strat import MovingAverageCrossStrategy
 
 def get_strategy(strategy_name: str, params: dict) -> IStrategy:
-    """
-    Returns an instance of the requested strategy.
-    """
-    if strategy_name == "MovingAverageCrossStrategy":
-        return MovingAverageCrossStrategy(
-            short_window=params.get("short_window", 9),
-            long_window=params.get("long_window", 21)
-        )
-    # Add future strategies here
+    safe_params = params or {}
+
+    if strategy_name == "ExampleStrategy":
+        return ExampleStrat(**safe_params)
+    elif strategy_name == "ExampleStrategyTwo":
+        return ExampleStratTwo(**safe_params)
     else:
         raise ValueError(f"Strategy {strategy_name} not found in factory.")
