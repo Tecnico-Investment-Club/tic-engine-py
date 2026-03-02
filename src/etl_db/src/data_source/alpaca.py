@@ -5,8 +5,8 @@ from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 
-from src.core.datatypes import Candle
-from src.etl_db.data_source.base import DataSource
+from src.core.types import Candle
+from src.etl_db.src.data_source.base import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +38,6 @@ class AlpacaSource(DataSource):
             
             # THE FIX: Extract the actual 'data' dictionary inside it
             actual_data = bars_dict.get("data", {})
-
-            # DEBUG PRINT: Let's see what we actually got!
-            print(f"DEBUG: Keys inside actual_data for {symbol}:", actual_data.keys())
             
             # Check if we got data for this symbol
             if symbol not in actual_data or not actual_data[symbol]:

@@ -3,8 +3,8 @@ import logging
 import yaml
 from typing import Dict
 
-from src.etl_db.data_source.base import DataSource
-from src.etl_db.persistence.repository import MarketDataRepository
+from src.etl_db.src.data_source.base import DataSource
+from src.etl_db.src.persistence.repository import MarketDataRepository
 
 logger = logging.getLogger(__name__)
 

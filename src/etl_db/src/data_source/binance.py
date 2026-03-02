@@ -3,8 +3,8 @@ import requests
 from datetime import datetime, timezone
 from typing import List, Literal
 
-from src.core.datatypes import Candle
-from src.etl_db.data_source.base import DataSource
+from src.core.types import Candle
+from src.etl_db.src.data_source.base import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,17 @@ class BinanceSource(DataSource):
                 # Convert milliseconds to UTC datetime
                 dt = datetime.fromtimestamp(timestamp_ms / 1000.0, tz=timezone.utc)
 
+                # Translate symbol into internal logic
+                stablecoins = ["USDT", "BUSD", "TUSD", "USDC"]
+                internal_symbol = symbol
+                for coin in stablecoins:
+                    if symbol.endswith(coin):
+                        internal_symbol = symbol[:-len(coin)] + "USD"
+                        break
+
+
                 candles.append(Candle(
-                    symbol=symbol,
+                    symbol=internal_symbol,
                     timestamp=dt,
                     open=float(row[1]),
                     high=float(row[2]),

@@ -10,11 +10,11 @@ load_dotenv()
 sys.path.append(os.getcwd())
 
 
-from src.etl_db.persistence.connection import get_db_connection
-from src.etl_db.persistence.repository import MarketDataRepository
-from src.etl_db.data_source.alpaca import AlpacaSource
-from src.etl_db.data_source.binance import BinanceSource
-from src.etl_db.jobs.ingestor import IngestionJob
+from src.etl_db.src.persistence.connection import get_db_connection
+from src.etl_db.src.persistence.repository import MarketDataRepository
+from src.etl_db.src.data_source.alpaca import AlpacaSource
+from src.etl_db.src.data_source.binance import BinanceSource
+from src.etl_db.src.jobs.ingestor import IngestionJob
 
 # Configure Logging
 logging.basicConfig(

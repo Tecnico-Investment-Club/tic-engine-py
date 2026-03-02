@@ -1,7 +1,7 @@
 from typing import List
 import logging
 from psycopg2.extras import execute_values
-from src.core.datatypes import Candle
+from src.core.types import Candle
 
 logger = logging.getLogger(__name__)
 
