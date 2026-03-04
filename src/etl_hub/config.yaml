@@ -1,15 +1,17 @@
+# src/etl_hub/config.yaml
 job_settings:
-  sleep_seconds: 3600
-  bootstrap_limit: 500
-  update_limit: 10
-  retention_days: 365
+  bootstrap_limit: 500   # How many candles to fetch if the DB is empty
+  update_limit: 10       # How many candles to fetch for hourly synchronization
+  retention_days: 515    # How long to keep historical data
 
 assets:
   alpaca:
-    - AAPL
-    - TSLA
-    - SPY
+    - "AAPL"
+    - "MSFT"
+    - "TSLA"
+    - "SPY"
+    - "QQQ"
   binance:
-    - BTCUSDT
-    - ETHUSDT
-    - SOLUSDT
+    - "BTCUSDT"
+    - "ETHUSDT"
+    - "SOLUSDT"

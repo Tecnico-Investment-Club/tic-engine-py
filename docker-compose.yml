@@ -1,69 +1,46 @@
 services:
-  tic-db:
+  internal_db:
     image: postgres:15-alpine
-    container_name: tic-db
+    container_name: tic_internal_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: tic_user
       POSTGRES_PASSWORD: tic_password
-      POSTGRES_DB: tic_data
+      POSTGRES_DB: tic_market_data
     ports:
       - "5432:5432"
     volumes:
-      - ./src/etl_db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tic_user -d tic_data"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
+      - tic_postgres_data:/var/lib/postgresql/data
+      # Automatically run the schema script on first boot
+      - ./src/etl_hub/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
 
-  tic-etl:
+  etl_hub:
     build:
       context: .
-      dockerfile: src/etl_db/Dockerfile
-    container_name: tic-etl
-    restart: always
+      dockerfile: src/etl_hub/Dockerfile
+    container_name: tic_etl_hub
+    restart: unless-stopped
+    depends_on:
+      - internal_db
     env_file:
       - ./secrets/etl.env
-    depends_on:
-      tic-db:
-        condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
-    # ADD THIS:
-    volumes:
-      - ./src/etl_db/config.yaml:/app/src/etl_db/config.yaml
+      DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
 
-  pod-one:
+  trading_pod_one:
     build:
       context: .
-      dockerfile: src/engine_py/Dockerfile
-    container_name: pod-one
+      dockerfile: src/trading_pod/Dockerfile
+    container_name: tic_trading_pod_one
     restart: unless-stopped
+    depends_on:
+      - internal_db
     env_file:
       - ./secrets/strat_one.env
-    depends_on:
-      tic-db:
-        condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
-      - CONFIG_PATH=/app/config.yaml 
+      DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
     volumes:
-      - ./src/engine_py/src/strategy/example_strat/config.yaml:/app/config.yaml
+      - ./src/trading_pod/config.yaml:/app/src/trading_pod/config.yaml:ro
 
-  pod-two:
-    build:
-      context: .
-      dockerfile: src/engine_py/Dockerfile
-    container_name: pod-two
-    restart: unless-stopped
-    env_file:
-      - ./secrets/strat_two.env
-    depends_on:
-      tic-db:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
-      - CONFIG_PATH=/app/config.yaml 
-    volumes:
-      - ./src/engine_py/src/strategy/example_strat_two/config.yaml:/app/config.yaml
+volumes:
+  tic_postgres_data:
