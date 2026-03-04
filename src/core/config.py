@@ -5,16 +5,21 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class GlobalSettings(BaseSettings):
     """
-    Loads and validates global secrets from the .env file.
+    Loads and validates global secrets from environment variables.
     Will crash on startup if required keys are missing.
+    
+    Environment variables expected:
+    ALPACA_KEY: Alpaca API key
+    ALPACA_SECRET: Alpaca API secret
+    DATABASE_URL: PostgreSQL connection string
     """
     env: str = "testnet"
-    alpaca_api_key: str
-    alpaca_api_secret: str
+    alpaca_key: str
+    alpaca_secret: str
     database_url: str
 
-    # Tells pydantic to look for a file named .env in the root folder
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # Read from environment variables
+    model_config = SettingsConfigDict(extra="ignore")
 
 settings = GlobalSettings()
 

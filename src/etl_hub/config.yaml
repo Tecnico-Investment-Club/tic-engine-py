@@ -1,0 +1,15 @@
+job_settings:
+  sleep_seconds: 3600
+  bootstrap_limit: 500
+  update_limit: 10
+  retention_days: 365
+
+assets:
+  alpaca:
+    - AAPL
+    - TSLA
+    - SPY
+  binance:
+    - BTCUSDT
+    - ETHUSDT
+    - SOLUSDT

@@ -30,6 +30,9 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://tic_user:tic_password@tic-db:5432/tic_data
+    # ADD THIS:
+    volumes:
+      - ./src/etl_db/config.yaml:/app/src/etl_db/config.yaml
 
   pod-one:
     build:

@@ -29,7 +29,7 @@ class MarketData(BaseModel):
     """
     A collection of historical data organized by ticker.
     """
-    data: Dict[str, List[Candle]] = {}
+    data: Dict[str, List[Candle]] = Field(default_factory=dict)
 
     def symbols(self) -> List[str]:
         """Returns a list of all symbols in the market data."""

@@ -2,7 +2,7 @@
 
 # Core & Utilities
 pydantic==2.6.*         # Strict data validation and models
-python-dotenv==1.0.*    # Manages .env files for local development
+pydantic-settings==2.1.*  # Settings management for Pydantic v2
 PyYAML==6.0.*           # For parsing config.yaml files
 
 # Broker & Data Source SDKs
@@ -12,12 +12,6 @@ requests==2.31.*        # For hitting Binance public API and Discord webhooks
 # Database & Persistence
 psycopg2-binary==2.9.*  # Postgres database driver
 
-# Strategy & Data Science
-pandas==2.1.*           # Core data manipulation for strategies
-numpy==1.26.*           # Numerical processing, required by pandas
-
-# Scheduling
-schedule==1.2.*         # In-process job scheduling for the engine's heartbeat
-
-# Time
-
+# Testing (optional, for local development)
+pytest==7.4.*          # Unit testing framework
+pytz==2024.1.*          # Timezone handling for tests and datetime operations
