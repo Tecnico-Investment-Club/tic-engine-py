@@ -26,10 +26,6 @@ class AlpacaExecution(IExecution):
             logger.info("No orders to execute in this cycle.")
             return receipts
 
-        # Sort so that the SELL go always first
-        priority = {OrderSide.SELL: 0, OrderSide.BUY: 1}
-        orders.sort(key=lambda x: priority.get(x.side, 2))
-
         for order in orders:
             try:
                 # Map the internal OrderSide to Alpaca's format
@@ -52,7 +48,7 @@ class AlpacaExecution(IExecution):
                 # Crypto usually requires GTC. Stocks usually use DAY.
                 tif = TimeInForce.GTC if is_crypto else TimeInForce.DAY
 
-                # Guardrail: We only support Market orders in this iteration
+                # Currently only Market Orders are supported
                 if order.type != OrderType.MARKET:
                     logger.warning(f"Unsupported order type {order.type} for {symbol}. Skipping.")
                     continue

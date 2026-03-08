@@ -16,6 +16,7 @@ class StandardTransformer(ITransformer):
     def generate_orders(self, allocations: List[TargetAllocation], state: PortfolioState) -> List[OrderRequest]:
         orders = []
         total_equity = state.total_equity
+
         # Deduct the buffer to get the actual equity we are allowed to allocate
         tradable_equity = total_equity * (1.0 - self.buffer_pct)
         
@@ -38,7 +39,6 @@ class StandardTransformer(ITransformer):
                 continue
 
             # Calculate the Delta: target value - current value
-            # CRITICAL: Use tradable_equity here instead of total_equity
             target_value = tradable_equity * target_weight
             current_qty = state.positions.get(symbol, 0.0)
             current_value = current_qty * price
@@ -67,8 +67,8 @@ class StandardTransformer(ITransformer):
                 side=side
             ))
 
-        # IMPORTANT: Sort orders so SELLs happen before BUYs.
-        # This frees up cash first during rebalancing!
+        # Sort orders so SELLs happen before BUYs.
+        # This frees up cash first during rebalancing
         orders.sort(key=lambda x: 0 if x.side == OrderSide.SELL else 1)
 
         logger.info(f"Transformer: Converted {len(allocations)} weights into {len(orders)} order requests.")

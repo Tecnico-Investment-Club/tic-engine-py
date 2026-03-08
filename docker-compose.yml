@@ -1,7 +1,7 @@
 services:
   internal_db:
     image: postgres:15-alpine
-    container_name: tic_internal_db
+    container_name: tic_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: tic_user
@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: src/etl_hub/Dockerfile
-    container_name: tic_etl_hub
+    container_name: tic_etl
     restart: unless-stopped
     depends_on:
       - internal_db
@@ -31,12 +31,27 @@ services:
     build:
       context: .
       dockerfile: src/trading_pod/Dockerfile
-    container_name: tic_trading_pod_one
+    container_name: tic_pod_one
     restart: unless-stopped
     depends_on:
       - internal_db
     env_file:
       - ./secrets/strat_one.env
+    environment:
+      DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
+    volumes:
+      - ./src/trading_pod/config.yaml:/app/src/trading_pod/config.yaml:ro
+  
+  trading_pod_two:
+    build:
+      context: .
+      dockerfile: src/trading_pod/Dockerfile
+    container_name: tic_pod_two
+    restart: unless-stopped
+    depends_on:
+      - internal_db
+    env_file:
+      - ./secrets/strat_two.env
     environment:
       DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
     volumes:
