@@ -13,7 +13,7 @@ services:
       - tic_postgres_data:/var/lib/postgresql/data
       # Automatically run the schema script on first boot
       - ./src/etl_hub/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-
+  
   etl_hub:
     build:
       context: .
@@ -22,6 +22,8 @@ services:
     restart: unless-stopped
     depends_on:
       - internal_db
+    volumes:
+      - ./src/etl_hub/config.yaml:/app/src/etl_hub/config.yaml
     env_file:
       - ./secrets/etl.env
     environment:
@@ -41,21 +43,5 @@ services:
       DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
     volumes:
       - ./src/trading_pod/config.yaml:/app/src/trading_pod/config.yaml:ro
-  
-  trading_pod_two:
-    build:
-      context: .
-      dockerfile: src/trading_pod/Dockerfile
-    container_name: tic_pod_two
-    restart: unless-stopped
-    depends_on:
-      - internal_db
-    env_file:
-      - ./secrets/strat_two.env
-    environment:
-      DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
-    volumes:
-      - ./src/trading_pod/config.yaml:/app/src/trading_pod/config.yaml:ro
-
 volumes:
   tic_postgres_data:
