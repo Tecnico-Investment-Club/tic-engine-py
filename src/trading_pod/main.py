@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 
 # Load your configuration parser 
 from core.config import settings, load_yaml_config
@@ -25,13 +26,20 @@ setup_discord_logging(settings.discord_webhook_url, level=logging.ERROR)
 logger = logging.getLogger("TRADING.MAIN")
 
 def main():
-    logger.info("Initializing Trading Pod Infrastructure...")
-
+    # Get the strat name from Environment
+    strat_name_env = os.getenv("STRAT_NAME", "pingpong")
     
-    #logger.critical("TEST TRADING CRITICAL: Intentional crash to verify Discord logging.")
+    # Path relative to the container's working directory
+    config_path = f"src/trading_pod/configs/{strat_name_env}.yaml"
 
-    # 1. Load configuration 
-    config = load_yaml_config("src/trading_pod/config.yaml")
+    logger.info(f"[{strat_name_env.upper()}] Initializing Trading Pod Infrastructure...")
+
+    # Load the specific YAML
+    try:
+        config = load_yaml_config(config_path)
+    except FileNotFoundError:
+        logger.error(f"Config file not found: {config_path}. Check volume mounts!")
+        return
     
     lookback = config.get("lookback", 50)
     symbols = config.get("assets", [])

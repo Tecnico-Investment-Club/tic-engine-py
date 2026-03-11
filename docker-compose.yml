@@ -1,4 +1,16 @@
+# Template definition
+x-trading-template: &trading_template
+  build:
+    context: .
+    dockerfile: src/trading_pod/Dockerfile
+  restart: unless-stopped
+  depends_on:
+    - internal_db
+  volumes:
+    - ./src/trading_pod/configs:/app/src/trading_pod/configs:ro
+
 services:
+  # Database
   internal_db:
     image: postgres:15-alpine
     container_name: tic_db
@@ -11,9 +23,9 @@ services:
       - "5432:5432"
     volumes:
       - tic_postgres_data:/var/lib/postgresql/data
-      # Automatically run the schema script on first boot
       - ./src/etl_hub/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-  
+
+  # ETL Container
   etl_hub:
     build:
       context: .
@@ -29,19 +41,24 @@ services:
     environment:
       DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
 
-  trading_pod_one:
-    build:
-      context: .
-      dockerfile: src/trading_pod/Dockerfile
-    container_name: tic_pod_one
-    restart: unless-stopped
-    depends_on:
-      - internal_db
-    env_file:
-      - ./secrets/strat_one.env
+  # TRADING PODS
+  tic_pod_momentum:
+    <<: *trading_template
+    container_name: tic_pod_momentum
     environment:
-      DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
-    volumes:
-      - ./src/trading_pod/config.yaml:/app/src/trading_pod/config.yaml:ro
+      - STRAT_NAME=momentum
+      - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
+    env_file:
+      - ./secrets/momentum.env
+
+  tic_pod_pingpong:
+    <<: *trading_template
+    container_name: tic_pod_pingpong
+    environment:
+      - STRAT_NAME=pingpong
+      - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
+    env_file:
+      - ./secrets/pingpong.env
+
 volumes:
   tic_postgres_data:
