@@ -1,4 +1,3 @@
-- [ ] Dar fix do scaling horizontal das estratégias não estar a funcionar corretamente
 - [ ] Fix this Bullshit 
      ````
      2026-03-08 15:33:01,560 - CORE.MESSAGING - INFO - Listening for updates on channel 'market_data_ready'...
