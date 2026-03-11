@@ -12,7 +12,7 @@ class PingPongStrat(IStrategy):
     Buys when the asset price drops below X% of its SMA.
     Sells when the asset price rises above Y% of its SMA.
     """
-    def __init__(self, sma_window: int = 20, buy_threshold: float = 10, sell_threshold: float = 20):
+    def __init__(self, sma_window: int = 20, buy_threshold: float = 0.98, sell_threshold: float = 1.02):
         self.sma_window = sma_window
         
         # X: Buy if price is under 98% of the moving average
