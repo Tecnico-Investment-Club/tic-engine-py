@@ -1,4 +1,3 @@
-- [ ] Ver ETL dar reload dos assets
 - [ ] Dar fix do scaling horizontal das estratégias não estar a funcionar corretamente
 - [ ] Fix this Bullshit 
      ````
