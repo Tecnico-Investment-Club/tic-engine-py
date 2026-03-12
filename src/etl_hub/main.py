@@ -52,21 +52,25 @@ def main():
             config = load_yaml_config("src/etl_hub/config.yaml")
             
             # Execute the database synchronization
-            # Including the Pub Sub model notification
             pipeline.execute(config)
             
         except Exception as e:
             logger.error(f"Critical failure in ETL loop: {e}")
 
-        # Calculate sleep time until the next hour
+        # Sscheduling Logic
         now = datetime.now(timezone.utc)
+        
+        # Calculate the exact target time (minute 1, second 0)
         next_run = now.replace(minute=1, second=0, microsecond=0)
         if next_run <= now:
             next_run += timedelta(hours=1)
         
         sleep_seconds = (next_run - now).total_seconds()
-        logger.info(f"Sleeping for {sleep_seconds / 60:.2f} minutes until next cycle...")
-        time.sleep(sleep_seconds)
+        logger.info(f"Sleeping for {sleep_seconds / 60:.2f} minutes until exactly {next_run.strftime('%H:%M:%S')} UTC...")
+        
+        # Wait Loop
+        while datetime.now(timezone.utc) < next_run:
+            time.sleep(1) # Check the clock every 1 second
 
 if __name__ == "__main__":
     main()
