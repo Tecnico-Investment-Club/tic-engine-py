@@ -18,9 +18,27 @@ class AlpacaExecution(IExecution):
     def __init__(self, api_key: str, api_secret: str, paper: bool = True):
         self.broker = TradingClient(api_key, api_secret, paper=paper)
         logger.info(f"Alpaca Execution initialized. Paper mode: {paper}")
+    
+    def cancel_all_open_orders(self) -> None:
+        """Cancels all pending orders to free up buying power."""
+        try:
+            logger.info("Sweeping pending orders...")
+            cancel_statuses = self.broker.cancel_orders()
+            
+            # Alpaca returns a list of dictionaries with cancelation status
+            if cancel_statuses:
+                logger.info(f"Successfully sent cancel requests for {len(cancel_statuses)} orders.")
+            else:
+                logger.info("No open orders to cancel.")
+                
+        except APIError as e:
+            logger.error(f"Failed to cancel open orders. Alpaca API Error: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error canceling orders: {e}")
 
     def execute_orders(self, orders: List[OrderRequest]) -> List[TradeReceipt]:
         receipts = []
+
 
         if not orders:
             logger.info("No orders to execute in this cycle.")

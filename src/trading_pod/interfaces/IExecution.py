@@ -9,6 +9,13 @@ class IExecution(ABC):
     """
 
     @abstractmethod
+    def cancel_all_open_orders(self) -> None:
+        """
+        Cancels all pending or open orders at the broker to free up buying power.
+        """
+        pass
+
+    @abstractmethod
     def execute_orders(self, orders: List[OrderRequest]) -> List[TradeReceipt]:
         """
         Translates a list of standardized OrderRequests into API calls.

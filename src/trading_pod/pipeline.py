@@ -7,6 +7,7 @@ from trading_pod.interfaces.IStrategy import IStrategy
 from trading_pod.interfaces.ITransformer import ITransformer
 from trading_pod.interfaces.IExecution import IExecution
 from core.utils import parse_time_interval
+from alpaca.common.exceptions import APIError
 
 logger = logging.getLogger("TRADING.PIPELINE")
 
@@ -37,45 +38,58 @@ class TradingPipeline:
 
     def handle_pubsub_event(self, payload: dict) -> None:
         """
-        Triggered by messaging.py when the ETL Hub broadcasts an update.
+        Handle a Pub/Sub event from the ETL Hub.
+
+        Runs the trading cycle only if the cooldown period has passed.
         """
         logger.info(f"Pub/Sub Event Received: {payload.get('message', 'Triggered')}")
-        
+
         now = datetime.now(timezone.utc)
-        
-        # The Cooldown / Throttle Logic
+
+        # Skip if we're still in the cooldown period
         if self.last_execution_time:
             time_since_last_run = now - self.last_execution_time
             if time_since_last_run < self.cooldown_period:
                 logger.info(
-                    f"Skipping execution. Cooldown active. "
-                    f"(Needs {self.cooldown_period}, elapsed {time_since_last_run})"
+                    f"Skipping execution. Cooldown active "
+                    f"(Cooldown: {self.cooldown_period}, Elapsed: {time_since_last_run})"
                 )
                 return
 
-        # If we passed the throttle, run the heavy logic
-        logger.info("Cooldown passed. Starting Trading Cycle...")
+        # Run the trading cycle
+        logger.info("Cooldown passed. Running trading cycle...")
         self._run_cycle()
-        
-        # Record the successful execution time to start the cooldown timer
-        self.last_execution_time = datetime.now(timezone.utc)
+
+        # Update last execution time, aligned to the cooldown
+        cooldown_sec = self.cooldown_period.total_seconds()
+        if cooldown_sec > 0:
+            epoch = now.timestamp()
+            aligned_epoch = epoch - (epoch % cooldown_sec)
+            self.last_execution_time = datetime.fromtimestamp(aligned_epoch, tz=timezone.utc)
+        else:
+            self.last_execution_time = now
+
 
     def _run_cycle(self) -> None:
         """The actual Read -> Compute -> Write loop."""
         try:
-            # 1. READ
+            # CLEAN ALL PENDING TRADES
+            self.executor.cancel_all_open_orders()
+
+            # INGEST
             market_data = self.ingestor.fetch_data(self.symbols, self.timeframe, self.lookback)
             if not market_data.data:
                 logger.warning("No market data returned. Aborting cycle.")
                 return
                 
+            # FETCH
             portfolio_state = self.ingestor.fetch_portfolio_state(market_data)
 
-            # 2. COMPUTE
+            # COMPUTE
             allocations = self.strategy.generate_allocations(market_data)
             orders = self.transformer.generate_orders(allocations, portfolio_state)
 
-            # 3. WRITE
+            # EXECUTE
             if not orders:
                 logger.info("No actionable orders generated.")
             else:
