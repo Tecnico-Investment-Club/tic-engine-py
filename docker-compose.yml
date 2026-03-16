@@ -42,23 +42,32 @@ services:
       DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
 
   # TRADING PODS
-  tic_pod_momentum:
-    <<: *trading_template
-    container_name: tic_pod_momentum
-    environment:
-      - STRAT_NAME=momentum
-      - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
-    env_file:
-      - ./secrets/momentum.env
+  #tic_pod_momentum:
+  #  <<: *trading_template
+  #  container_name: tic_pod_momentum
+  #  environment:
+  #    - STRAT_NAME=momentum
+  #    - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
+  #  env_file:
+  #    - ./secrets/momentum.env
 
-  tic_pod_pingpong:
+  #tic_pod_pingpong:
+  #  <<: *trading_template
+  #  container_name: tic_pod_pingpong
+  #  environment:
+  #    - STRAT_NAME=pingpong
+  #    - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
+  #  env_file:
+  #    - ./secrets/pingpong.env
+  
+  tic_pod_hrp:
     <<: *trading_template
-    container_name: tic_pod_pingpong
+    container_name: tic_pod_hrp
     environment:
-      - STRAT_NAME=pingpong
+      - STRAT_NAME=hrp
       - DATABASE_URL=postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
     env_file:
-      - ./secrets/pingpong.env
+      - ./secrets/hrp.env
 
 volumes:
   tic_postgres_data:

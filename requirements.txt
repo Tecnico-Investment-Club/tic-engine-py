@@ -8,6 +8,8 @@ PyYAML==6.0.*           # For parsing config.yaml files
 # Broker & Data Source SDKs
 alpaca-py==0.43.*       # Official Alpaca Trading & Market Data SDK
 requests==2.31.*        # For hitting Binance public API and Discord webhooks
+pandas==2.2.*           # Required by PO_HRP strategy preprocessing
+scipy==1.13.*           # Required by PO_HRP optimization and clustering
 
 # Database & Persistence
 psycopg2-binary==2.9.*  # Postgres database driver
