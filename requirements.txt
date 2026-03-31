@@ -17,3 +17,12 @@ psycopg2-binary==2.9.*  # Postgres database driver
 # Testing (optional, for local development)
 pytest==7.4.*          # Unit testing framework
 pytz==2024.1.*          # Timezone handling for tests and datetime operations
+
+# ML Strategy Dependencies
+pandas
+numpy
+scikit-learn==1.8.0
+matplotlib
+statsmodels
+scipy
+tqdm

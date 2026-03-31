@@ -4,6 +4,7 @@ from typing import List
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide as AlpacaOrderSide, TimeInForce
+from alpaca.common.exceptions import APIError
 
 from core.datatypes import OrderRequest, TradeReceipt, OrderSide, OrderType
 from trading_pod.interfaces.IExecution import IExecution

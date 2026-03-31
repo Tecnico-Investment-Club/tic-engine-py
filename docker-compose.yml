@@ -46,6 +46,13 @@ services:
     container_name: tic_pod_hrp
     env_file:
       - ./secrets/hrp.env
+   
+  tic_pod_ml_btc:
+    <<: *trading_template
+    container_name: tic_pod_ml_btc
+    environment:
+    env_file:
+      - ./secrets/ml.env
 
 volumes:
   tic_postgres_data:

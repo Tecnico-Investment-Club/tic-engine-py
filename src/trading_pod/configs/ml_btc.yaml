@@ -1,0 +1,25 @@
+# src/trading_pod/configs/ml_btc.yaml
+
+# General Pod Settings
+poll_interval_seconds: 3600      # 1 hour sleep interval
+lookback: 300                    # CRITICAL: >250 required to bootstrap FracDiff
+assets:
+  - "BTCUSD"
+
+# Strategy Configuration
+strategy:
+  name: "MLStrat"                # Must exactly match the factory _NAME_REGISTRY
+  timeframe: "1h"
+  trade_every: "1h"
+  params:
+    symbol: "BTCUSD"
+
+# Risk Management 
+risk:
+  max_notional_per_order: 1000.0      
+  max_total_notional_per_symbol: 5000.0  
+
+# Execution Configuration
+execution:
+  type: "mock"  
+  paper: true
