@@ -2,14 +2,12 @@ import importlib
 from typing import Dict, Type
 
 from trading_pod.interfaces.IStrategy import IStrategy
-from trading_pod.strategy.example_strat_one.example_strat.example_strat import PingPongStrat
-from trading_pod.strategy.example_strat_two.example_strat.example_strat import MomentumStrat
+from trading_pod.strategy.po_hrp.po_hrp import POHRPStrat
 
 
 _NAME_REGISTRY: Dict[str, Type[IStrategy]] = {
-    "ExampleStrategy": PingPongStrat,
-    "PingPongStrat": PingPongStrat,
-    "MomentumStrat": MomentumStrat
+    "POHRPStrat": POHRPStrat,
+    "HRP": POHRPStrat,
 }
 
 def _load_class_from_path(class_path: str) -> Type[IStrategy]:

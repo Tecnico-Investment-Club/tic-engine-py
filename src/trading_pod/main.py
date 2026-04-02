@@ -27,7 +27,12 @@ logger = logging.getLogger("TRADING.MAIN")
 
 def main():
     # Get the strat name from Environment
-    strat_name_env = os.getenv("STRAT_NAME", "pingpong")
+    strat_name_env = os.getenv("STRAT_NAME", "")
+
+    # Validate strat name presence
+    if not strat_name_env:
+        logger.error("STRAT_NAME environment variable is not set. Please set it to the desired strategy name.")
+        return
     
     # Path relative to the container's working directory
     config_path = f"src/trading_pod/configs/{strat_name_env}.yaml"
