@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 from core.datatypes import Candle 
 
 class IProvider(ABC):
@@ -9,14 +9,14 @@ class IProvider(ABC):
     """
     
     @abstractmethod
-    def fetch_candles(self, symbols: str, timeframe: str, limit: int = 100) -> List[Candle]:
+    def fetch_candles(self, symbols: List[str], timeframe: str, limit: int = 100) -> Dict[str, List[Candle]]:
         """
         Fetches historical OHLCV data for the given symbols.
         
         :param symbols: List of ticker strings
         :param timeframe: The interval
         :param limit: Number of candles to fetch per asset
-        :return: A flat list of validated Candle objects
+        :return: A dictionary mapping each symbol to a list of validated Candle objects
         """
         pass
         
