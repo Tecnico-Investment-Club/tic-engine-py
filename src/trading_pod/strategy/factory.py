@@ -8,8 +8,13 @@ from trading_pod.strategy.ml4f.ml_strat import MLBtcStrategy
 
 _NAME_REGISTRY: Dict[str, Type[IStrategy]] = {
     "HRP": POHRPStrat,
+<<<<<<< HEAD
     "ML": MLBtcStrategy
+=======
+    "RSI": RSIStrategy,
+>>>>>>> 061b600 (feat(strategies): RSI Strategy)
 }
+
 
 def _load_class_from_path(class_path: str) -> Type[IStrategy]:
     """
@@ -20,10 +25,9 @@ def _load_class_from_path(class_path: str) -> Type[IStrategy]:
     cls = getattr(module, class_name)
 
     if not issubclass(cls, IStrategy):
-        raise TypeError(
-            f"{class_path} is not a subclass of IStrategy (got {cls!r})."
-        )
+        raise TypeError(f"{class_path} is not a subclass of IStrategy (got {cls!r}).")
     return cls
+
 
 def get_strategy(
     strategy_name: str,
@@ -48,3 +52,4 @@ def get_strategy(
         f"Strategy '{strategy_name}' not found. "
         f"Provide a valid 'strategy.name' or 'strategy.class_path' in config."
     )
+

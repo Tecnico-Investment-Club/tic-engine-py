@@ -1,0 +1,14 @@
+strategy:
+  name: "RSI"
+  timeframe: "1h"
+  params:
+    period: 14
+    overbought: 70
+    oversold: 30
+assets:
+  - BTC-USD
+
+# Execution Configuration
+execution:
+  type: "mock"
+  paper: true
