@@ -29,17 +29,19 @@ def timeframe_to_table(timeframe: str) -> str:
     raise ValueError(f"Unsupported timeframe '{timeframe}'. Expected '1h' or '1d'.")
 
 def parse_time_interval(interval_str: str) -> timedelta:
-    """Converts a string like '1d', '1w', '4h' into a timedelta."""
+    """Converts a string like '1d', '1w', '1h, 1m, 1s' into a timedelta."""
     if not interval_str:
         return timedelta(seconds=0)
         
-    match = re.match(r"(\d+)([dhw])", interval_str.lower())
+    match = re.match(r"(\d+)([smhdw])", interval_str.lower())
     if not match:
-        raise ValueError(f"Invalid interval format: {interval_str}. Use '1h', '1d', '1w'.")
+        raise ValueError(f"Invalid interval format: {interval_str}. Use '1s', '1m', '1h', '1d', '1w'.")
         
     value = int(match.group(1))
     unit = match.group(2)
     
+    if unit == 's': return timedelta(seconds=value)
+    if unit == 'm': return timedelta(minutes=value)
     if unit == 'h': return timedelta(hours=value)
     if unit == 'd': return timedelta(days=value)
     if unit == 'w': return timedelta(weeks=value)
