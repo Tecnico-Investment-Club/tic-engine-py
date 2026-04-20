@@ -8,9 +8,9 @@ assets:
 
 # Strategy Configuration
 strategy:
-  name: "MLStrat"                # Must exactly match the factory _NAME_REGISTRY
+  name: "ML"                # Must exactly match the factory _NAME_REGISTRY
   timeframe: "1h"
-  trade_every: "1h"
+  trade_every: "0s"
   params:
     symbol: "BTCUSD"
 

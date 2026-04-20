@@ -25,8 +25,8 @@ class StandardTransformer(ITransformer):
 
         # Loop through each target allocation
         for alloc in allocations:
-            symbol = alloc.symbol
-            target_weight = alloc.weight
+            symbol = alloc.symbol 
+            target_weight = max(0.0, alloc.weight)
             
             logger.debug(f"Evaluating {symbol} (Target Weight: {target_weight})")
 
@@ -71,5 +71,5 @@ class StandardTransformer(ITransformer):
         # This frees up cash first during rebalancing
         orders.sort(key=lambda x: 0 if x.side == OrderSide.SELL else 1)
 
-        logger.info(f"Transformer: Converted {len(allocations)} weights into {len(orders)} order requests.")
+        logger.info(f"Transformer: Converted {len(allocations)} weights into {len(orders)} order requests and had {len(allocations) - len(orders)} allocations skipped.")
         return orders
