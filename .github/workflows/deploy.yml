@@ -18,6 +18,5 @@ jobs:
           script: |
             cd ~/tic-engine-py
             git pull origin main
-            docker compose down
-            docker compose build
-            docker compose up -d --force-recreate
+            docker compose up -d --build --remove-orphans
+            docker image prune -f
