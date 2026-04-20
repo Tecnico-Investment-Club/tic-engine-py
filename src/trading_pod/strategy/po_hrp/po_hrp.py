@@ -6,7 +6,7 @@ from core.datatypes import MarketData, TargetAllocation
 from trading_pod.interfaces.IStrategy import IStrategy
 from trading_pod.strategy.po_hrp.hrp.functions import _get_weights
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("TRADING.HRP")
 
 class POHRPStrat(IStrategy):
     """Hierarchical Risk Parity strategy integrated with the current trading engine."""

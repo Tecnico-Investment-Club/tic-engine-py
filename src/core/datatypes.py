@@ -63,7 +63,7 @@ class TargetAllocation(BaseModel):
     The output of a Strategy.
     """
     symbol: str
-    weight: float = Field(..., ge=0.0, le=1.0, description="Target percentage (0.0 to 1.0)")
+    weight: float = Field(..., ge=-1.0, le=1.0, description="Target percentage (0.0 to 1.0)")
 
 
 # EXECUTION INTENT

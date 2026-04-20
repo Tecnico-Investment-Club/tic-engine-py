@@ -3,11 +3,12 @@ from typing import Dict, Type
 
 from trading_pod.interfaces.IStrategy import IStrategy
 from trading_pod.strategy.po_hrp.po_hrp import POHRPStrat
+from trading_pod.strategy.ml4f.ml_strat import MLBtcStrategy
 
 
 _NAME_REGISTRY: Dict[str, Type[IStrategy]] = {
-    "POHRPStrat": POHRPStrat,
     "HRP": POHRPStrat,
+    "ML": MLBtcStrategy
 }
 
 def _load_class_from_path(class_path: str) -> Type[IStrategy]:

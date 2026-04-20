@@ -530,7 +530,7 @@ assets:
 
 # Strategy Configuration
 strategy:
-  name: "POHRPStrat"
+  name: "HRP"
   timeframe: "1d"
   trade_every: "13w" #FIXME
   params:
