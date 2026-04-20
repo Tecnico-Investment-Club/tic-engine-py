@@ -41,16 +41,15 @@ services:
     environment:
       DATABASE_URL: postgresql://tic_user:tic_password@internal_db:5432/tic_market_data
   
-  tic_pod_hrp:
+  tic_pod_po:
     <<: *trading_template
-    container_name: tic_pod_hrp
+    container_name: tic_pod_po
     env_file:
       - ./secrets/hrp.env
    
-  tic_pod_ml_btc:
+  tic_pod_ml:
     <<: *trading_template
-    container_name: tic_pod_ml_btc
-    environment:
+    container_name: tic_pod_ml
     env_file:
       - ./secrets/ml.env
 
