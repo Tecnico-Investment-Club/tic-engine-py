@@ -5,8 +5,21 @@ strategy:
     period: 14
     overbought: 70
     oversold: 30
+    trend_period: 200
 assets:
   - BTC-USD
+  - ETH-USD
+  - XRP-USD
+  - BNB-USD
+  - SOL-USD
+  - HYPE-USD
+  - TRX-USD
+  - DOGE-USD
+  - LEO-USD
+  - BCH-USD
+
+
+
 
 # Execution Configuration
 execution:

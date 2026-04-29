@@ -19,11 +19,15 @@ class RSIStrategy(IStrategy):
         overbought: int = 70,
         oversold: int = 30,
         lookback_window: int = 50,
+        trend_period: int = 200,
     ):
         self.period = int(period)
         self.overbought = overbought
         self.oversold = oversold
-        self.lookback_window = max(2 * self.period, int(lookback_window))
+        self.lookback_window = max(
+            self.trend_period, 2 * self.period, int(lookback_window)
+        )
+        self.trend_period = trend_period
 
         logger.info(
             "Initialized RSIStrategy | period=%s | overbought=%s | oversold=%s | lookback_window=%s",
@@ -58,6 +62,10 @@ class RSIStrategy(IStrategy):
                     raw_weights[symbol] = 0.0
                     continue
 
+                # SMA Calculation
+
+                sma = series.rolling(window=self.trend_period).mean()
+
                 # RSI Calculation
                 delta = series.diff()
                 gain = (
@@ -76,15 +84,22 @@ class RSIStrategy(IStrategy):
                 current_rsi = rsi.iloc[-1]
 
                 # Maps RSI linearly
-                weight = 1.0 - (current_rsi - self.oversold) / (
-                    self.overbought - self.oversold
-                )
-                weight = float(np.clip(weight, 0.0, 1.0))
+                #
+                if series[-1] > sma.iloc[-1]:
+                    weight = 1.0 - (current_rsi - self.oversold) / (
+                        self.overbought - self.oversold
+                    )
+                    weight = float(np.clip(weight, 0.0, 1.0))
 
-                raw_weights[symbol] = weight
-                logger.debug(
-                    "[RSI] %s: RSI=%.2f, Raw Weight=%.4f", symbol, current_rsi, weight
-                )
+                    raw_weights[symbol] = weight
+                    logger.debug(
+                        "[RSI] %s: RSI=%.2f, Raw Weight=%.4f",
+                        symbol,
+                        current_rsi,
+                        weight,
+                    )
+                else:
+                    raw_weights[symbol] = 0.0
 
             except Exception as e:
                 logger.error("[RSI] Error calculating RSI for %s: %s", symbol, e)
