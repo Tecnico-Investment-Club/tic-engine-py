@@ -55,7 +55,7 @@ services:
 
   tic_pod_rsi:
     <<: *trading_template
-    container_name:tic_pod_rsi
+    container_name: tic_pod_rsi
     env_file:
       - ./secrets/rsi.env
 

@@ -24,10 +24,11 @@ class RSIStrategy(IStrategy):
         self.period = int(period)
         self.overbought = overbought
         self.oversold = oversold
+        self.trend_period = trend_period
+
         self.lookback_window = max(
             self.trend_period, 2 * self.period, int(lookback_window)
         )
-        self.trend_period = trend_period
 
         logger.info(
             "Initialized RSIStrategy | period=%s | overbought=%s | oversold=%s | lookback_window=%s",

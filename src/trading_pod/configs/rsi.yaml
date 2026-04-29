@@ -5,7 +5,7 @@ strategy:
     period: 14
     overbought: 70
     oversold: 30
-    trend_period: 200
+    trend_period: 250
 assets:
   - BTC-USD
   - ETH-USD
