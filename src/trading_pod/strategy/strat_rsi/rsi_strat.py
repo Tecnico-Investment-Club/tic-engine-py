@@ -5,7 +5,7 @@ from typing import List, Dict
 from core.datatypes import MarketData, TargetAllocation
 from trading_pod.interfaces.IStrategy import IStrategy
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("TRADING.RSI")
 
 
 class RSIStrategy(IStrategy):
@@ -103,7 +103,9 @@ class RSIStrategy(IStrategy):
                     raw_weights[symbol] = 0.0
 
             except Exception as e:
-                logger.error("[RSI] Error calculating RSI for %s: %s", symbol, e)
+                logger.error(
+                    "[RSI] Error calculating RSI for %s: %s", symbol, e, exc_info=True
+                )
                 raw_weights[symbol] = 0.0
 
         # Prevents total portfolio weight from exceeding 100%
