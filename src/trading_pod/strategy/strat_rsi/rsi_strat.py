@@ -86,7 +86,7 @@ class RSIStrategy(IStrategy):
 
                 # Maps RSI linearly
                 #
-                if series[-1] > sma.iloc[-1]:
+                if series.iloc[-1] > sma.iloc[-1]:
                     weight = 1.0 - (current_rsi - self.oversold) / (
                         self.overbought - self.oversold
                     )
