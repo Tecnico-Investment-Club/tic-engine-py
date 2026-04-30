@@ -83,6 +83,17 @@ class RSIStrategy(IStrategy):
                 rs = gain / loss
                 rsi = 100 - (100 / (1 + rs))
                 current_rsi = rsi.iloc[-1]
+                current_rs = rs.iloc[-1]
+
+                if not np.isfinite(current_rs) or not np.isfinite(current_rsi):
+                    raw_weights[symbol] = 0.0
+                    logger.debug(
+                        "[RSI] %s: non-finite RSI detected (RS=%s, RSI=%s). Using raw weight 0.0",
+                        symbol,
+                        current_rs,
+                        current_rsi,
+                    )
+                    continue
 
                 # Maps RSI linearly
                 #
