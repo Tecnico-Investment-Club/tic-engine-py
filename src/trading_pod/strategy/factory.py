@@ -4,12 +4,15 @@ from typing import Dict, Type
 from trading_pod.interfaces.IStrategy import IStrategy
 from trading_pod.strategy.po_hrp.po_hrp import POHRPStrat
 from trading_pod.strategy.ml4f.ml_strat import MLBtcStrategy
+from trading_pod.strategy.strat_rsi.rsi_strat import RSIStrategy
 
 
 _NAME_REGISTRY: Dict[str, Type[IStrategy]] = {
     "HRP": POHRPStrat,
-    "ML": MLBtcStrategy
+    "ML": MLBtcStrategy,
+    "RSI": RSIStrategy,
 }
+
 
 def _load_class_from_path(class_path: str) -> Type[IStrategy]:
     """
@@ -20,10 +23,9 @@ def _load_class_from_path(class_path: str) -> Type[IStrategy]:
     cls = getattr(module, class_name)
 
     if not issubclass(cls, IStrategy):
-        raise TypeError(
-            f"{class_path} is not a subclass of IStrategy (got {cls!r})."
-        )
+        raise TypeError(f"{class_path} is not a subclass of IStrategy (got {cls!r}).")
     return cls
+
 
 def get_strategy(
     strategy_name: str,
