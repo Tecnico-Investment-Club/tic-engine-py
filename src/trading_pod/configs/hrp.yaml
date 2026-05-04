@@ -8,8 +8,8 @@ assets:
   - QQQ
   - GLD
   - SLV
-  - BTC-USD
-  - ETH-USD
+  - BTCUSD
+  - ETHUSD
   - A
   - AAPL
   - ABBV
@@ -521,12 +521,12 @@ assets:
   - ZBH
   - ZBRA
   - ZTS
-  - XRP-USD
-  - BNB-USD
-  - SOL-USD
-  - TRX-USD
-  - DOGE-USD
-  - ADA-USD
+  - XRPUSD
+  - BNBUSD
+  - SOLUSD
+  - TRXUSD
+  - DOGEUSD
+  - ADAUSD
 
 # Strategy Configuration
 strategy:
