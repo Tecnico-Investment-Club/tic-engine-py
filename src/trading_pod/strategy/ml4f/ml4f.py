@@ -254,14 +254,19 @@ def main():
 
         if not new_data.empty:
 
+            # FIXME: GRANDE CHANCE DE JÁ ESTAR A FUNCIONAR. FAZER VERIFICAÇÕES EXTRA E PROCEGUIR PARA INTEGRAÇÃO COM O TIC ENGINE.
+
             # CUSUM threshold
-            h = 2 * new_data['Adj Close'].diff().std()
+            h = 2 * new_data['Adj Close'].diff().std() 
 
             # CUSUM events
-            cusum_events, sPos, sNeg = cusum_filter_live(
-                new_data, 'Adj Close', h,
+            ponte_de_dados = pd.concat([prev_closes.iloc[-1:], new_data.set_index('date')[['Adj Close']]]) 
+
+            cusum_events, sPos, sNeg = cusum_filter_live( 
+                ponte_de_dados, 'Adj Close', h,
                 sPos_prev=sPos, sNeg_prev=sNeg
             )
+
 
             if not cusum_events.empty:
                 # Save CUSUM events
@@ -402,14 +407,14 @@ def main():
                     'aroon': aroon_reindexed,
                     'normalized_volume': norm_vol_reindexed,
                     'volume_ratio': vol_ratio_reindexed,
-                    'vol_ma': vol_ma_reindexed,
-                    'macd_initial': macd_initial_reindexed,
-                    'macd_normalized': macd_norm_reindexed,
+                    'vwr_20': vol_ma_reindexed,
+                    'macd_initial': macd_initial_reindexed,  
+                    'macd': macd_norm_reindexed,             
                     'atr_log_14': atr_log_reindexed,
                     'entropy_100': entropy_reindexed
                 })
 
-
+                features = features[model_side.feature_names_in_]
                 # Remove rows with NaN
                 features = features.dropna()
                 if features.empty:
@@ -442,6 +447,8 @@ def main():
                     # Append to active bets
                     active_bets = pd.concat([active_bets, predictions])
                     print(f"Added {len(predictions)} new predictions.")
+
+                    
 
         else:
             print("No new data found.")
