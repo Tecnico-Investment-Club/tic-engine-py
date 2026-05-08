@@ -7,16 +7,16 @@ strategy:
     oversold: 30
     trend_period: 250
 assets:
-  - BTC-USD
-  - ETH-USD
-  - XRP-USD
-  - BNB-USD
-  - SOL-USD
-  - HYPE-USD
-  - TRX-USD
-  - DOGE-USD
-  - LEO-USD
-  - BCH-USD
+  - BTCUSD
+  - ETHUSD
+  - XRPUSD
+  - BNBUSD
+  - SOLUSD
+  - HYPEUSD
+  - TRXUSD
+  - DOGEUSD
+  - LEOUSD
+  - BCHUSD
 
 
 
