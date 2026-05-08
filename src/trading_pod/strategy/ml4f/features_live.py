@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import math
 from collections import deque
-from .chapter2 import entropy          
-from .chapter4 import atr_                 
+from chapter2 import entropy          
+from chapter4 import atr_                 
 
 
 ###############################################################

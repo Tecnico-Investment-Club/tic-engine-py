@@ -3,13 +3,13 @@ from typing import Dict, Type
 
 from trading_pod.interfaces.IStrategy import IStrategy
 from trading_pod.strategy.po_hrp.po_hrp import POHRPStrat
-from trading_pod.strategy.ml4f.ml_strat import MLBtcStrategy
+#from trading_pod.strategy.ml4f.ml_strat import MLBtcStrategy   FIXME
 from trading_pod.strategy.strat_rsi.rsi_strat import RSIStrategy
 
 
 _NAME_REGISTRY: Dict[str, Type[IStrategy]] = {
     "HRP": POHRPStrat,
-    "ML": MLBtcStrategy,
+    #"ML": MLBtcStrategy,   FIXME
     "RSI": RSIStrategy,
 }
 

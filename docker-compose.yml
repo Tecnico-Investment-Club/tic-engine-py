@@ -47,17 +47,17 @@ services:
     env_file:
       - ./secrets/hrp.env
    
-  tic_pod_ml:
-    <<: *trading_template
-    container_name: tic_pod_ml
-    env_file:
-      - ./secrets/ml.env
+  #tic_pod_ml:    FIXME
+  #  <<: *trading_template
+  #  container_name: tic_pod_ml
+  #  env_file:
+  #    - ./secrets/ml.env
 
-  tic_pod_rsi:
-    <<: *trading_template
-    container_name: tic_pod_rsi
-    env_file:
-      - ./secrets/rsi.env
+  #tic_pod_rsi:   FIXME
+  #  <<: *trading_template
+  #  container_name: tic_pod_rsi
+  #  env_file:
+  #    - ./secrets/rsi.env
 
 
 
