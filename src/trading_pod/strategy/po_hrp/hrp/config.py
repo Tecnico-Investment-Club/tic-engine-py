@@ -18,6 +18,6 @@ N_CLUSTERS = 4
 WEIGHT_CUTOFF = 0.00001
 
 # Optimization Universe
-crypto = ['BTC-USD', 'ETH-USD', 'XRP-USD', 'BNB-USD', 'SOL-USD', 'TRX-USD', 'DOGE-USD', 'ADA-USD']
+crypto = ['BTCUSD', 'ETHUSD', 'XRPUSD', 'BNBUSD', 'SOLUSD', 'TRXUSD', 'DOGEUSD', 'ADAUSD']
 commodities = ["USO", "BNO", "UNG", "GLD", "SLV", "PPLT", "PALL", "DBA", "DBC", "GSG"]
 
