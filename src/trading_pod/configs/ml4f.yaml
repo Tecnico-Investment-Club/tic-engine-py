@@ -1,0 +1,25 @@
+# src/trading_pod/configs/hrp.yaml
+
+# General Pod Settings
+poll_interval_seconds: 60
+lookback: 250
+assets:
+  - BTCUSD
+
+# Strategy Configuration
+strategy:
+  name: "ML4F"
+  timeframe: "1h"
+  trade_every: "1h" 
+  params:
+    lookback_window: 250
+
+# Risk Management
+risk:
+  max_notional_per_order: 100000.0
+  max_total_notional_per_symbol: 100000.0
+
+# Execution Configuration
+execution:
+  type: "mock"
+  paper: true

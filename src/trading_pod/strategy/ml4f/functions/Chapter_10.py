@@ -1,6 +1,6 @@
 from scipy.stats import norm
 import pandas as pd
-from Parallel_Processing_utils import mpPandasObj
+#from Parallel_Processing_utils import mpPandasObj
 
 def getSignal(events, stepSize, prob, pred, numClasses = 2, numThreads = 1, **kargs):
     """
