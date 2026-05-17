@@ -169,7 +169,7 @@ class ML4FStrategy(IStrategy):
         if not self.active_bets.empty:
             probs_sum = self.active_bets['probs'].sum()
             if probs_sum > 0:
-                weighted_sizes = self.active_bets['probs'] * self.active_bets['size']
+                weighted_sizes = self.active_bets['probs'] * self.active_bets['size'] * self.active_bets['side']
                 new_bet_size = weighted_sizes.sum() / probs_sum
             else:
                 new_bet_size = 0
