@@ -4,7 +4,7 @@ from functions.Chapter_7 import PurgedKFold, cvScore
 from sklearn.metrics import log_loss,accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import BaggingClassifier
-from Parallel_Processing_utils import mpPandasObj
+#from Parallel_Processing_utils import mpPandasObj
 import matplotlib.pyplot as plt
 from itertools import product
 

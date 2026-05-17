@@ -276,8 +276,10 @@ def cusum_filter_live(df_input, price_header, h, molecule=None, sPos_prev=0, sNe
     
     # Ensure 'date' is a datetime type and set as index
     df_input = df_input.copy()
-    df_input['date'] = pd.to_datetime(df_input['date'])
-    df_input.set_index('date', inplace=True)
+
+    if 'date' in df_input.columns:
+        df_input['date'] = pd.to_datetime(df_input['date'])
+        df_input.set_index('date', inplace=True)
 
     # multiprocessing
     if molecule is not None:
@@ -285,9 +287,10 @@ def cusum_filter_live(df_input, price_header, h, molecule=None, sPos_prev=0, sNe
 
     sPos, sNeg = sPos_prev, sNeg_prev
     tEvents = []
-    diff = df_input[price_header].diff()
+
+    diff = df_input[price_header].diff().dropna()
     
-    for i in diff.index[1:]:
+    for i in diff.index:
         sPos, sNeg = max(0, sPos + diff.loc[i]), min(0, sNeg + diff.loc[i])
         
         if sNeg < -h:

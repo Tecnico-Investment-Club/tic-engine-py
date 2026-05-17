@@ -47,13 +47,13 @@ services:
     env_file:
       - ./secrets/hrp.env
    
-  tic_pod_ml:
+  tic_pod_ml4f:    
     <<: *trading_template
-    container_name: tic_pod_ml
+    container_name: tic_pod_ml4f
     env_file:
-      - ./secrets/ml.env
+      - ./secrets/ml4f.env
 
-  tic_pod_rsi:
+  tic_pod_rsi:   
     <<: *trading_template
     container_name: tic_pod_rsi
     env_file:
